@@ -3,65 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Device Info Page</title>
+    <title>设备信息页面</title>
     <style>
         body {
             background-color: red;
-            margin: 0;
-            overflow: hidden;
-            font-family: Arial, sans-serif;
             color: white;
-            white-space: pre-wrap; /* Allows text to wrap */
-            word-wrap: break-word; /* Break words if needed */
-            padding: 10px;
-            text-align: left; /* Align text to the left */
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-start;
+            flex-direction: column;
+            overflow: hidden;
+            height: 100vh;
+            width: 100%;
         }
-        .device-info {
-            font-size: 12px;
+
+        #image-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            background-image: url('https://pbs.twimg.com/profile_images/519879978196811776/Sca-hNob_400x400.jpeg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        #info {
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 10px;
+            font-size: 14px;
             white-space: pre-wrap;
             word-wrap: break-word;
-            background-color: rgba(0, 0, 0, 0.6);
-            padding: 10px;
-            border-radius: 5px;
+            overflow: hidden;
             max-width: 100%;
+            max-height: 100%;
+            z-index: 1;
         }
     </style>
 </head>
 <body>
-    <div id="device-info" class="device-info"></div>
+    <div id="image-container"></div>
+    <div id="info"></div>
 
     <script>
         function getDeviceInfo() {
-            const deviceInfo = {
-                'IP Address': 'Unavailable via browser', // You can't get IP from the browser directly
-                'User-Agent': navigator.userAgent,
-                'Platform': navigator.platform,
-                'Language': navigator.language,
-                'Screen Resolution': `${window.screen.width}x${window.screen.height}`,
-                'Available Screen Width': window.screen.availWidth,
-                'Available Screen Height': window.screen.availHeight,
-                'Timezone': Intl.DateTimeFormat().resolvedOptions().timeZone,
-                'Memory (GB)': navigator.deviceMemory || 'Unavailable',
-                'CPU Cores': navigator.hardwareConcurrency,
-                'Touch Supported': 'Yes' if ('ontouchstart' in window) else 'No',
-                'Viewport Width': window.innerWidth,
-                'Viewport Height': window.innerHeight
+            const info = {
+                "userAgent": navigator.userAgent,
+                "language": navigator.language,
+                "platform": navigator.platform,
+                "cpuClass": navigator.cpuClass || "N/A",
+                "screenWidth": screen.width,
+                "screenHeight": screen.height,
+                "screenColorDepth": screen.colorDepth,
+                "timezone": new Date().getTimezoneOffset(),
+                "deviceMemory": navigator.deviceMemory || "N/A",
+                "hardwareConcurrency": navigator.hardwareConcurrency || "N/A",
+                "cookieEnabled": navigator.cookieEnabled,
+                "connectionType": navigator.connection ? navigator.connection.effectiveType : "N/A",
+                "browserTypeAndVersion": getBrowserTypeAndVersion(),
+                "localIP": getLocalIP(),
+                "canvasFingerprint": getCanvasFingerprint()
             };
 
-            let infoText = '';
-            for (const [key, value] of Object.entries(deviceInfo)) {
-                infoText += `${key}: ${value}\n`;
-            }
-
-            // Encode to base64
-            const encodedInfo = btoa(infoText);
-
-            document.getElementById('device-info').innerText = `Device Info (Base64 Encoded):\n${encodedInfo}`;
+            return info;
         }
 
-        window.onload = function() {
-            getDeviceInfo();
-        };
+        // 解析浏览器类型和版本
+        function getBrowserTypeAndVersion() {
+            const userAgent = navigator.userAgent;
+            const browsers = [
+                { name: 'Chrome', regex: /Chrome\/([0-9.]+)/ },
+                { name: 'Firefox', regex: /Firefox\/([0-9.]+)/ },
+                { name: 'Safari', regex: /Safari\/([0-9.]+)/ },
+                { name: 'Edge', regex: /Edge\/([0-9.]+)/ },
+                { name: 'Opera', regex: /Opera\/([0-9.]+)/ }
+            ];
+
+            for (const browser of browsers) {
+                const match = userAgent.match(browser.regex);
+                if (match) {
+                    return `${browser.name} ${match[1]}`;
+                }
+            }
+            return "Unknown Browser";
+        }
+
+        // 获取本地IP地址
+        function getLocalIP() {
+            return new Promise((resolve) => {
+                const pc = new RTCPeerConnection();
+                pc.createDataChannel('');
+                pc.createOffer().then((offer) => pc.setLocalDescription(offer));
+                pc.onicecandidate = (event) => {
+                    if (event.candidate && event.candidate.candidate) {
+                        const match = event.candidate.candidate.match(/([0-9]{1,3}\.){3}[0-9]{1,3}/);
+                        if (match) {
+                            resolve(match[0]);
+                        }
+                    }
+                };
+            });
+        }
+
+        // 获取Canvas指纹
+        function getCanvasFingerprint() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const text = "Browser Fingerprint Test";
+            ctx.textBaseline = "top";
+            ctx.font = "16px Arial";
+            ctx.fillText(text, 2, 2);
+            const dataURL = canvas.toDataURL();
+            return dataURL;
+        }
+
+        // 转换数据为Base64
+        function encodeBase64(data) {
+            return btoa(JSON.stringify(data));
+        }
+
+        // 显示设备信息
+        async function displayDeviceInfo() {
+            const deviceInfo = await getDeviceInfo();
+            const encodedInfo = encodeBase64(deviceInfo);
+            document.getElementById('info').textContent = `设备信息（Base64编码）：\n${encodedInfo}`;
+        }
+
+        displayDeviceInfo();
     </script>
 </body>
 </html>
