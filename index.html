@@ -6,65 +6,90 @@
     <title>Device Info</title>
     <style>
         body {
-            background-color: red;
             margin: 0;
             height: 100vh;
+            background-color: red;
             display: flex;
             justify-content: center;
             align-items: center;
-            position: relative;
             overflow: hidden;
-        }
-        img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            transform: scale(10000);  /* 放大图片10000% */
-            object-fit: cover;
-        }
-        .device-info {
+            font-family: Arial, sans-serif;
             color: white;
-            font-size: 10px;
+            text-align: center;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        #device-info {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.5);
+            top: 10px;
+            left: 10px;
             padding: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
             max-width: 90%;
             overflow: auto;
-            word-wrap: break-word;
-            z-index: 1;
+        }
+
+        img {
+            max-width: 100%;
+            max-height: 100%;
         }
     </style>
 </head>
 <body>
-    <img src="https://pbs.twimg.com/profile_images/519879978196811776/Sca-hNob_400x400.jpeg" alt="Image">
-    <div class="device-info" id="device-info"></div>
-
+    <div id="device-info"></div>
+    <img src="https://pbs.twimg.com/profile_images/519879978196811776/Sca-hNob_400x400.jpeg" id="image" alt="Image" />
+    
     <script>
-        // Collect device info
+        // Collecting device information
         const deviceInfo = {
-            userAgent: navigator.userAgent,
-            language: navigator.language,
-            platform: navigator.platform,
-            screenWidth: screen.width,
-            screenHeight: screen.height,
-            screenColorDepth: screen.colorDepth,
-            appName: navigator.appName,
-            appVersion: navigator.appVersion,
-            cookieEnabled: navigator.cookieEnabled,
-            javaEnabled: navigator.javaEnabled(),
-            timezone: new Date().getTimezoneOffset(),
-            deviceMemory: navigator.deviceMemory || "Unknown",
-            hardwareConcurrency: navigator.hardwareConcurrency || "Unknown"
+            "User-Agent": navigator.userAgent,
+            "Platform": navigator.platform,
+            "Screen Width": window.innerWidth,
+            "Screen Height": window.innerHeight,
+            "Language": navigator.language,
+            "Timezone": Intl.DateTimeFormat().resolvedOptions().timeZone,
+            "CPU": navigator.hardwareConcurrency,
+            "Memory": navigator.deviceMemory,
+            "Touch Support": 'ontouchstart' in window ? 'Supported' : 'Not Supported',
+            "Cookies Enabled": navigator.cookieEnabled,
+            "Canvas Fingerprint": getCanvasFingerprint(),
+            "Font Fingerprint": getFontFingerprint()
         };
 
-        // Convert device info to base64 encoded string
-        const base64Info = btoa(JSON.stringify(deviceInfo));
+        // Base64 encoding function
+        function toBase64(str) {
+            return btoa(unescape(encodeURIComponent(str)));
+        }
 
-        // Display the device info directly on the page
-        const deviceInfoDiv = document.getElementById("device-info");
-        deviceInfoDiv.textContent = base64Info;
+        // Function to generate a canvas fingerprint
+        function getCanvasFingerprint() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.textBaseline = 'top';
+            ctx.font = '14px Arial';
+            ctx.fillText('test', 2, 2);
+            return canvas.toDataURL();
+        }
+
+        // Function to generate a simple font fingerprint
+        function getFontFingerprint() {
+            const fontTestDiv = document.createElement('div');
+            fontTestDiv.style.fontFamily = 'Arial, sans-serif';
+            document.body.appendChild(fontTestDiv);
+            const fontData = fontTestDiv.offsetWidth;
+            document.body.removeChild(fontTestDiv);
+            return fontData.toString();
+        }
+
+        // Convert device info to Base64
+        const base64DeviceInfo = Object.keys(deviceInfo).map(key => {
+            return key + ": " + toBase64(deviceInfo[key]);
+        }).join('<br>');
+
+        // Displaying the device info
+        document.getElementById("device-info").innerHTML = base64DeviceInfo;
     </script>
 </body>
 </html>
