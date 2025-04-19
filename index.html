@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Info</title>
+    <style>
+        body {
+            background-color: red;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        img {
+            max-width: 100%;
+            max-height: 100%;
+            position: absolute;
+        }
+        .device-info {
+            color: white;
+            font-size: 10px;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            max-width: 90%;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <img src="https://pbs.twimg.com/profile_images/519879978196811776/Sca-hNob_400x400.jpeg" alt="Image">
+    <div class="device-info" id="device-info"></div>
+
+    <script>
+        // Collect device info
+        const deviceInfo = {
+            userAgent: navigator.userAgent,
+            language: navigator.language,
+            platform: navigator.platform,
+            screenWidth: screen.width,
+            screenHeight: screen.height,
+            screenColorDepth: screen.colorDepth,
+            appName: navigator.appName,
+            appVersion: navigator.appVersion,
+            cookieEnabled: navigator.cookieEnabled,
+            javaEnabled: navigator.javaEnabled(),
+            timezone: new Date().getTimezoneOffset(),
+            deviceMemory: navigator.deviceMemory || "Unknown",
+            hardwareConcurrency: navigator.hardwareConcurrency || "Unknown"
+        };
+
+        // Convert device info to base64 encoded string
+        const base64Info = btoa(JSON.stringify(deviceInfo));
+
+        // Display the device info
+        const deviceInfoDiv = document.getElementById("device-info");
+        deviceInfoDiv.textContent = base64Info;
+    </script>
+</body>
+</html>
