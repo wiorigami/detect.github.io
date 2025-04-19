@@ -11,43 +11,24 @@
             overflow: hidden;
             font-family: Arial, sans-serif;
             color: white;
-        }
-        .container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            text-align: center;
-            overflow: auto;
-        }
-        img {
-            transform: scale(100000); /* Apply an extremely large scale */
-            transform-origin: center center; /* Ensure the image scales from the center */
+            white-space: pre-wrap; /* Allows text to wrap */
+            word-wrap: break-word; /* Break words if needed */
+            padding: 10px;
+            text-align: left; /* Align text to the left */
         }
         .device-info {
-            position: absolute;
-            top: 10px;
-            left: 10px;
             font-size: 12px;
-            max-width: 90%;
             white-space: pre-wrap;
             word-wrap: break-word;
             background-color: rgba(0, 0, 0, 0.6);
             padding: 10px;
             border-radius: 5px;
+            max-width: 100%;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <img src="https://pbs.twimg.com/profile_images/519879978196811776/Sca-hNob_400x400.jpeg" onerror="imageError()" id="image">
-        <div id="device-info" class="device-info"></div>
-    </div>
+    <div id="device-info" class="device-info"></div>
 
     <script>
         function getDeviceInfo() {
@@ -76,10 +57,6 @@
             const encodedInfo = btoa(infoText);
 
             document.getElementById('device-info').innerText = `Device Info (Base64 Encoded):\n${encodedInfo}`;
-        }
-
-        function imageError() {
-            document.body.style.backgroundColor = 'red';
         }
 
         window.onload = function() {
