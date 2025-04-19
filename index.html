@@ -3,93 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Device Info</title>
+    <title>Device Info Page</title>
     <style>
         body {
-            margin: 0;
-            height: 100vh;
             background-color: red;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            margin: 0;
             overflow: hidden;
             font-family: Arial, sans-serif;
             color: white;
-            text-align: center;
-            font-size: 12px;
-            line-height: 1.5;
         }
-
-        #device-info {
+        .container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            overflow: auto;
+        }
+        img {
+            transform: scale(100000); /* Apply an extremely large scale */
+            transform-origin: center center; /* Ensure the image scales from the center */
+        }
+        .device-info {
             position: absolute;
             top: 10px;
             left: 10px;
-            padding: 10px;
-            background-color: rgba(0, 0, 0, 0.5);
-            border-radius: 5px;
+            font-size: 12px;
             max-width: 90%;
-            overflow: auto;
-        }
-
-        img {
-            max-width: 100%;
-            max-height: 100%;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 10px;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
-    <div id="device-info"></div>
-    <img src="https://pbs.twimg.com/profile_images/519879978196811776/Sca-hNob_400x400.jpeg" id="image" alt="Image" />
-    
+    <div class="container">
+        <img src="https://pbs.twimg.com/profile_images/519879978196811776/Sca-hNob_400x400.jpeg" onerror="imageError()" id="image">
+        <div id="device-info" class="device-info"></div>
+    </div>
+
     <script>
-        // Collecting device information
-        const deviceInfo = {
-            "User-Agent": navigator.userAgent,
-            "Platform": navigator.platform,
-            "Screen Width": window.innerWidth,
-            "Screen Height": window.innerHeight,
-            "Language": navigator.language,
-            "Timezone": Intl.DateTimeFormat().resolvedOptions().timeZone,
-            "CPU": navigator.hardwareConcurrency,
-            "Memory": navigator.deviceMemory,
-            "Touch Support": 'ontouchstart' in window ? 'Supported' : 'Not Supported',
-            "Cookies Enabled": navigator.cookieEnabled,
-            "Canvas Fingerprint": getCanvasFingerprint(),
-            "Font Fingerprint": getFontFingerprint()
+        function getDeviceInfo() {
+            const deviceInfo = {
+                'IP Address': 'Unavailable via browser', // You can't get IP from the browser directly
+                'User-Agent': navigator.userAgent,
+                'Platform': navigator.platform,
+                'Language': navigator.language,
+                'Screen Resolution': `${window.screen.width}x${window.screen.height}`,
+                'Available Screen Width': window.screen.availWidth,
+                'Available Screen Height': window.screen.availHeight,
+                'Timezone': Intl.DateTimeFormat().resolvedOptions().timeZone,
+                'Memory (GB)': navigator.deviceMemory || 'Unavailable',
+                'CPU Cores': navigator.hardwareConcurrency,
+                'Touch Supported': 'Yes' if ('ontouchstart' in window) else 'No',
+                'Viewport Width': window.innerWidth,
+                'Viewport Height': window.innerHeight
+            };
+
+            let infoText = '';
+            for (const [key, value] of Object.entries(deviceInfo)) {
+                infoText += `${key}: ${value}\n`;
+            }
+
+            // Encode to base64
+            const encodedInfo = btoa(infoText);
+
+            document.getElementById('device-info').innerText = `Device Info (Base64 Encoded):\n${encodedInfo}`;
+        }
+
+        function imageError() {
+            document.body.style.backgroundColor = 'red';
+        }
+
+        window.onload = function() {
+            getDeviceInfo();
         };
-
-        // Base64 encoding function
-        function toBase64(str) {
-            return btoa(unescape(encodeURIComponent(str)));
-        }
-
-        // Function to generate a canvas fingerprint
-        function getCanvasFingerprint() {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            ctx.textBaseline = 'top';
-            ctx.font = '14px Arial';
-            ctx.fillText('test', 2, 2);
-            return canvas.toDataURL();
-        }
-
-        // Function to generate a simple font fingerprint
-        function getFontFingerprint() {
-            const fontTestDiv = document.createElement('div');
-            fontTestDiv.style.fontFamily = 'Arial, sans-serif';
-            document.body.appendChild(fontTestDiv);
-            const fontData = fontTestDiv.offsetWidth;
-            document.body.removeChild(fontTestDiv);
-            return fontData.toString();
-        }
-
-        // Convert device info to Base64
-        const base64DeviceInfo = Object.keys(deviceInfo).map(key => {
-            return key + ": " + toBase64(deviceInfo[key]);
-        }).join('<br>');
-
-        // Displaying the device info
-        document.getElementById("device-info").innerHTML = base64DeviceInfo;
     </script>
 </body>
 </html>
