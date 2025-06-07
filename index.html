@@ -1,128 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文本</title>
-    <style>
-        body {
-            background-color: red;
-            color: white;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: flex-start;
-            align-items: flex-start;
-            flex-direction: column;
-            overflow: hidden;
-            height: 100vh;
-            width: 100%;
-        }
-
-        #image-container {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            background-image: url('https://pbs.twimg.com/profile_images/519879978196811776/Sca-hNob_400x400.jpeg');
-            background-size: cover;  /* Fill the entire screen while maintaining aspect ratio */
-            background-repeat: no-repeat;
-            background-position: center;
-            z-index: 0;  /* Set image container below the text */
-        }
-
-        #info {
-            position: absolute;
-            top: 0;
-            left: 0;  /* Position text at the left side of the screen */
-            padding: 10px;
-            font-size: 14px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            overflow: hidden;
-            max-width: 50%;  /* Limit the width of the text container to the left half of the screen */
-            z-index: 10;  /* Set a high z-index to ensure the text appears on top */
-            background: rgba(0, 0, 0, 0.6);  /* Optional: add background to improve text readability */
-            color: white; /* Ensures text remains readable against the background */
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>3秒后提示输入内容</title>
 </head>
 <body>
-    <div id="image-container"></div>
-    <div id="info"></div>
+  <h2>请输入文本并按回车：</h2>
+  <input type="text" id="textInput" placeholder="输入内容后按回车" style="width: 300px; padding: 8px; font-size: 16px;">
 
-    <script>
-        function getDeviceInfo() {
-            const info = {
-                "userAgent": navigator.userAgent,
-                "language": navigator.language,
-                "platform": navigator.platform,
-                "cpuClass": navigator.cpuClass || "N/A",
-                "screenWidth": screen.width,
-                "screenHeight": screen.height,
-                "screenColorDepth": screen.colorDepth,
-                "timezone": new Date().getTimezoneOffset(),
-                "deviceMemory": navigator.deviceMemory || "N/A",
-                "hardwareConcurrency": navigator.hardwareConcurrency || "N/A",
-                "cookieEnabled": navigator.cookieEnabled,
-                "connectionType": navigator.connection ? navigator.connection.effectiveType : "N/A",
-                "browserTypeAndVersion": getBrowserTypeAndVersion(),
-                "localIP": getLocalIP()
-            };
+  <script>
+    const input = document.getElementById('textInput');
 
-            return info;
+    input.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        const content = input.value.trim();
+        if (content !== '') {
+          setTimeout(() => {
+            alert('你输入的内容是：' + content);
+          }, 3000); // 3秒后弹出
         }
-
-        // 解析浏览器类型和版本
-        function getBrowserTypeAndVersion() {
-            const userAgent = navigator.userAgent;
-            const browsers = [
-                { name: 'Chrome', regex: /Chrome\/([0-9.]+)/ },
-                { name: 'Firefox', regex: /Firefox\/([0-9.]+)/ },
-                { name: 'Safari', regex: /Safari\/([0-9.]+)/ },
-                { name: 'Edge', regex: /Edge\/([0-9.]+)/ },
-                { name: 'Opera', regex: /Opera\/([0-9.]+)/ }
-            ];
-
-            for (const browser of browsers) {
-                const match = userAgent.match(browser.regex);
-                if (match) {
-                    return `${browser.name} ${match[1]}`;
-                }
-            }
-            return "Unknown Browser";
-        }
-
-        // 获取本地IP地址
-        function getLocalIP() {
-            return new Promise((resolve) => {
-                const pc = new RTCPeerConnection();
-                pc.createDataChannel('');
-                pc.createOffer().then((offer) => pc.setLocalDescription(offer));
-                pc.onicecandidate = (event) => {
-                    if (event.candidate && event.candidate.candidate) {
-                        const match = event.candidate.candidate.match(/([0-9]{1,3}\.){3}[0-9]{1,3}/);
-                        if (match) {
-                            resolve(match[0]);
-                        }
-                    }
-                };
-            });
-        }
-
-        // 转换数据为Base64
-        function encodeBase64(data) {
-            return btoa(JSON.stringify(data));
-        }
-
-        // 显示设备信息
-        async function displayDeviceInfo() {
-            const deviceInfo = await getDeviceInfo();
-            const encodedInfo = encodeBase64(deviceInfo);
-            document.getElementById('info').textContent = `文本：\n${encodedInfo}`;
-        }
-
-        displayDeviceInfo();
-    </script>
+      }
+    });
+  </script>
 </body>
 </html>
